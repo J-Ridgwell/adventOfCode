@@ -6,18 +6,15 @@ input.pop();
 const t0 = performance.now();
 
 class Node {
-	parent;
-	size;
-	fileName;
-	children = [];
-
 	constructor(parent, size, fileName) {
 		this.parent = parent;
 		this.size = size;
 		this.fileName = fileName;
+		this.children = [];
 	}
 
 	addChild(node) {
+		console.log(`Adding ${node.fileName} to ${this.fileName}`);
 		this.children.push(node);
 	}
 	getChild(fileName) {
@@ -46,15 +43,21 @@ for (const line of input) {
 	}
 }
 
-// InOrderTraverse(root);
+let totalSize = 0;
+InOrderTraverse(root);
 
 function InOrderTraverse(node) {
-	if (node !== null) {
-		for (const node of node.children) {
-			InOrderTraverse(node);
+	if (node) {
+		for (const child of node.children) {
+			InOrderTraverse(child);
 
 			//Print the node
-			console.log(node.key);
+			if (child.size <= 100000) {
+				// this is wrong
+				totalSize += child.size;
+			}
 		}
 	}
 }
+
+console.log(`Answer: ${totalSize}`);
