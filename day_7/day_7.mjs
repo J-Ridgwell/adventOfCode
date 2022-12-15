@@ -21,9 +21,10 @@ class Node {
 		this.children.push(node);
 	}
 	getChild(fileName) {
+		if (fileName === "..") return this.parent;
 		const child = this.children.find((elem) => (elem.fileName = fileName));
-		console.log(`CD-ing into ${child?.fileName}`);
-		return child;
+		// console.log(`CD-ing into ${child?.fileName}`);
+		return child ? child : this;
 	}
 }
 
@@ -33,21 +34,14 @@ let curr = root;
 for (const line of input) {
 	if (line.at(0) === "$") {
 		if (line.includes("cd")) {
-			console.log(`before cd: ${curr.fileName}`);
-
-			const fileName = line.substring(5);
-			if (fileName !== "..") {
-				const child = curr.getChild(line.substring(5));
-				curr = child === undefined ? curr : child;
-			} else {
-				curr = curr.parent;
-			}
-			console.log(`after cd: ${curr.fileName}`);
+			// console.log(`before cd: ${curr.fileName}`);
+			curr = curr.getChild(line.substring(5));
+			// console.log(`after cd: ${curr.fileName}`);
 		}
 	} else {
 		const [dirOrFileSize, fileName] = line.split(" ");
 		const currChild = new Node(curr, Number(dirOrFileSize), fileName);
-		console.log(currChild.size, currChild.fileName);
+		// console.log(currChild.size, currChild.fileName);
 		curr.addChild(currChild);
 	}
 }
