@@ -2,48 +2,53 @@ import fs from "fs";
 import { performance } from "perf_hooks";
 
 const input = fs.readFileSync("input.txt", "utf8").split("\n");
+input.pop();
 const t0 = performance.now();
 
 class Node {
 	parent;
+	size;
+	fileName;
 	children = [];
-	currDirectory;
 
-	constructor(parent, size, currDir) {
+	constructor(parent, size, fileName) {
 		this.parent = parent;
 		this.size = size;
-		this.currDirectory = currDir;
+		this.fileName = fileName;
 	}
 
 	addChild(node) {
 		this.children.push(node);
 	}
+	getChild(fileName) {
+		const child = this.children.find((elem) => (elem.fileName = fileName));
+		console.log(`CD-ing into ${child?.fileName}`);
+		return child;
+	}
 }
 
 const root = new Node(null, null, "/");
-let prev = root;
 let curr = root;
 
 for (const line of input) {
-	if (line.includes("$ cd")) {
-		const dir = line.slice(5);
-		if (dir === "..") {
-			curr = prev;
-			prev = curr.parent;
-			continue;
-		}
-		if (dir !== "/") {
-			console.log((curr = `${curr.currDirectory}`));
-			console.log((prev = `${prev.currDirectory}`));
+	if (line.at(0) === "$") {
+		if (line.includes("cd")) {
+			console.log(`before cd: ${curr.fileName}`);
 
-			curr = new Node(prev, null, dir);
-
-			curr.parent.addChild(curr);
-			prev = curr.parent;
+			const fileName = line.substring(5);
+			if (fileName !== "..") {
+				const child = curr.getChild(line.substring(5));
+				curr = child === undefined ? curr : child;
+			} else {
+				curr = curr.parent;
+			}
+			console.log(`after cd: ${curr.fileName}`);
 		}
-		if (dir === "/") {
-			curr = root;
-		}
+	} else {
+		const [dirOrFileSize, fileName] = line.split(" ");
+		const currChild = new Node(curr, Number(dirOrFileSize), fileName);
+		console.log(currChild.size, currChild.fileName);
+		curr.addChild(currChild);
 	}
 }
 
